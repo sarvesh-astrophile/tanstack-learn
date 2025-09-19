@@ -1,0 +1,29 @@
+{
+  "name": "tanstack-learn",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "biome check --write .",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:marketing": "turbo dev --filter=marketing",
+    "dev:web": "turbo dev --filter=web",
+    "dev:server": "turbo dev --filter=server",
+    "db:push": "turbo db:push --filter=server",
+    "db:studio": "turbo db:studio --filter=server",
+    "db:generate": "turbo db:generate --filter=server",
+    "db:migrate": "turbo db:migrate --filter=server"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
+    "turbo": "^2.5.6",
+    "ultracite": "^5.3.9"
+  },
+  "packageManager": "bun@1.2.17"
+}
