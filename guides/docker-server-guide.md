@@ -1,193 +1,236 @@
-# Docker Guide for TanStack Learn Server
+# Docker Production Deployment Guide for TanStack Learn Server
 
-This guide explains how to run the TanStack Learn server application using Docker Compose.
+This guide explains how to deploy the TanStack Learn server application using Docker for production environments.
 
 ## Prerequisites
 
 - Docker and Docker Compose installed on your system
-- Basic understanding of environment variables
+- Production environment variables configured
+- Understanding of containerized deployments
+
+## Architecture
+
+The production deployment uses:
+- **Multi-stage Docker build** for optimized image size
+- **Compiled Bun binary** for better performance
+- **Slim base image** to reduce attack surface
+- **Non-root user** for security
+- **Persistent database volume** for data persistence
+- **Health checks** for monitoring
+- **Automatic restarts** for reliability
 
 ## Quick Start
 
 1. **Navigate to the project root:**
-
    ```bash
    cd /path/to/tanstack-learn
    ```
 
 2. **Set up environment variables:**
-   Create a `.env` file in the server directory (`apps/server/.env`) with the following variables:
-
+   Create a `.env` file in the project root with your production values:
    ```env
-   BETTER_AUTH_SECRET=your-secret-key-here
-   BETTER_AUTH_URL=http://localhost:3000
-   GOOGLE_GENERATIVE_AI_API_KEY=your-google-ai-api-key
-   CORS_ORIGIN=http://localhost:3001
+   BETTER_AUTH_SECRET=your-production-secret-key-here
+   BETTER_AUTH_URL=https://yourdomain.com
+   GOOGLE_GENERATIVE_AI_API_KEY=your-production-ai-api-key
+   CORS_ORIGIN=https://yourfrontenddomain.com
    ```
 
-3. **Start the server:**
-
+3. **Build and start the server:**
    ```bash
-   docker-compose -f docker-compose.server.yml up
+   docker-compose -f docker-compose.server.yml up --build -d
    ```
 
 4. **Access the server:**
    - API endpoints: http://localhost:3000
    - Health check: http://localhost:3000/
-   - tRPC endpoints: http://localhost:3000/trpc/\*
-   - Authentication: http://localhost:3000/api/auth/\*
+   - tRPC endpoints: http://localhost:3000/trpc/*
+   - Authentication: http://localhost:3000/api/auth/*
 
-## Docker Compose Configuration
+## Docker Configuration
 
-The `docker-compose.server.yml` file includes:
+### Multi-stage Build (Dockerfile.server)
 
-### Service Configuration
+The `Dockerfile.server` uses a multi-stage build process:
 
-- **Image**: Uses the official Bun runtime (`oven/bun:latest`)
-- **Working Directory**: `/app/apps/server`
-- **Volumes**: Maps the server source code and creates a persistent database volume
-- **Environment Variables**: Configures all required environment variables
+1. **Builder Stage**: Installs dependencies and builds the application
+2. **Production Stage**: Uses a slim image with only the compiled binary
+
+Key features:
+- **Optimized image size**: Only includes necessary runtime files
+- **Security**: Runs as non-root user
+- **Performance**: Uses compiled binary instead of source code
+- **Health monitoring**: Built-in health checks
+
+### Docker Compose Configuration
+
+The `docker-compose.server.yml` includes:
+
+#### Service Configuration
+- **Build Context**: Uses custom Dockerfile for production builds
+- **Volumes**: Persistent database storage
+- **Environment Variables**: Production-ready configuration
 - **Port Mapping**: Exposes port 3000 for the server
+- **Restart Policy**: Automatically restarts on failure
 - **Health Check**: Monitors server health every 30 seconds
+- **Networking**: Isolated network for security
 
-### Database Setup
-
-- Uses SQLite with a persistent volume (`server-db`)
-- Automatically runs database migrations on startup (`bun run db:push`)
-- Database file stored at `/app/apps/server/data/local.db` inside the container
-
-### Development Features
-
-- Hot reloading enabled for development
-- Source code changes are reflected immediately
-- Database persists between container restarts
+#### Database Setup
+- Uses SQLite with persistent volume (`server-db`)
+- Database file stored at `/app/data/local.db` inside the container
+- Data persists between container restarts and deployments
 
 ## Environment Variables
 
-| Variable                       | Description                       | Required | Default                               |
-| ------------------------------ | --------------------------------- | -------- | ------------------------------------- |
-| `DATABASE_URL`                 | Database connection string        | Yes      | `file:/app/apps/server/data/local.db` |
-| `BETTER_AUTH_SECRET`           | Secret key for authentication     | Yes      | -                                     |
-| `BETTER_AUTH_URL`              | Base URL for auth callbacks       | Yes      | `http://localhost:3000`               |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Google AI API key for AI features | Yes      | -                                     |
-| `CORS_ORIGIN`                  | Allowed CORS origins              | Yes      | `http://localhost:3001`               |
+| Variable                       | Description                       | Required | Example |
+| ------------------------------ | --------------------------------- | -------- | ------- |
+| `DATABASE_URL`                 | Database connection string        | Yes      | `file:/app/data/local.db` |
+| `BETTER_AUTH_SECRET`           | Secret key for authentication     | Yes      | `prod-secret-key-123` |
+| `BETTER_AUTH_URL`              | Base URL for auth callbacks       | Yes      | `https://api.yourdomain.com` |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Google AI API key for AI features | Yes      | `AIzaSyC...` |
+| `CORS_ORIGIN`                  | Allowed CORS origins              | Yes      | `https://yourfrontend.com` |
+| `NODE_ENV`                     | Node environment                  | No       | `production` |
 
-## Common Commands
+## Deployment Commands
 
-### Start the server
-
+### Build and start the server
 ```bash
-docker-compose -f docker-compose.server.yml up
-```
-
-### Start in background
-
-```bash
-docker-compose -f docker-compose.server.yml up -d
+docker-compose -f docker-compose.server.yml up --build -d
 ```
 
 ### Stop the server
-
 ```bash
 docker-compose -f docker-compose.server.yml down
 ```
 
 ### View logs
-
 ```bash
 docker-compose -f docker-compose.server.yml logs -f
 ```
 
-### Rebuild and restart
-
+### Rebuild without cache
 ```bash
-docker-compose -f docker-compose.server.yml up --build
+docker-compose -f docker-compose.server.yml build --no-cache
 ```
 
-### Access the container
-
+### Update deployment
 ```bash
-docker-compose -f docker-compose.server.yml exec server bash
+docker-compose -f docker-compose.server.yml down
+docker-compose -f docker-compose.server.yml pull
+docker-compose -f docker-compose.server.yml up --build -d
 ```
 
-## Database Management
+### Check container status
+```bash
+docker-compose -f docker-compose.server.yml ps
+```
 
-### Access Drizzle Studio
+### View resource usage
+```bash
+docker stats tanstack-learn-server
+```
 
+## Security Considerations
+
+### Environment Variables
+- Never commit secrets to version control
+- Use Docker secrets for sensitive data in production
+- Rotate secrets regularly
+- Use strong, unique passwords
+
+### Container Security
+- Non-root user execution
+- Minimal attack surface with slim image
+- Regular base image updates
+- Network isolation
+
+### Database Security
+- Database runs inside container
+- No external database access required
+- Regular backups recommended
+- Consider encryption for sensitive data
+
+## Monitoring and Maintenance
+
+### Health Checks
+The container includes built-in health checks that monitor:
+- Server responsiveness
+- API endpoint availability
+- Database connectivity
+
+### Logs
+Access logs with:
+```bash
+docker-compose -f docker-compose.server.yml logs -f server
+```
+
+### Database Management
+For database operations, you can run commands inside the container:
 ```bash
 docker-compose -f docker-compose.server.yml exec server bun run db:studio
 ```
 
-### Run migrations manually
+## Scaling Considerations
 
-```bash
-docker-compose -f docker-compose.server.yml exec server bun run db:push
-```
+### Horizontal Scaling
+For high-traffic deployments, consider:
+- Load balancer in front of multiple containers
+- External database (PostgreSQL, MySQL)
+- Redis for session storage
+- CDN for static assets
 
-### Generate new migration
-
-```bash
-docker-compose -f docker-compose.server.yml exec server bun run db:generate
-```
+### Vertical Scaling
+- Increase container resources in docker-compose.yml
+- Use resource limits to prevent resource exhaustion
+- Monitor memory and CPU usage
 
 ## Troubleshooting
 
-### Port already in use
-
-If port 3000 is already in use, modify the port mapping in `docker-compose.server.yml`:
-
-```yaml
-ports:
-  - "3001:3000" # Change external port to 3001
-```
+### Container won't start
+1. Check environment variables are set correctly
+2. Verify all required variables are present
+3. Check logs: `docker-compose logs server`
+4. Ensure ports are not already in use
 
 ### Database connection issues
+1. Check database volume permissions
+2. Verify DATABASE_URL format
+3. Ensure sufficient disk space
+4. Check container logs for database errors
 
-- Ensure the database volume is properly mounted
-- Check database file permissions
-- Verify the `DATABASE_URL` environment variable
+### Performance issues
+1. Monitor resource usage: `docker stats`
+2. Check for memory leaks in application logs
+3. Consider database optimization
+4. Review API response times
 
-### Environment variable issues
+### Build failures
+1. Clear Docker cache: `docker system prune -a`
+2. Check available disk space
+3. Verify Docker daemon is running
+4. Review build logs for specific errors
 
-- Make sure all required environment variables are set
-- Check that the `.env` file is in the correct location (`apps/server/.env`)
-- Verify variable names match exactly
+## Production Checklist
 
-### AI features not working
-
-- Ensure `GOOGLE_GENERATIVE_AI_API_KEY` is set correctly
-- Check that the API key has the necessary permissions
-- Verify the key is valid and active
-
-## Production Considerations
-
-For production deployment:
-
-1. **Use environment variable files**: Create `.env.production` with production values
-2. **Use secrets management**: Consider using Docker secrets or external secret management
-3. **Database**: Consider using a managed database service instead of SQLite
-4. **Security**: Use HTTPS and proper CORS configuration
-5. **Logging**: Configure proper logging and monitoring
-6. **Health checks**: Implement proper health check endpoints
-
-## Development Workflow
-
-1. Make changes to the server code
-2. The container will automatically reload due to hot reloading
-3. Check logs with `docker-compose logs -f`
-4. Test API endpoints at http://localhost:3000
-5. Use Drizzle Studio for database inspection
+- [ ] Environment variables configured
+- [ ] Domain names and URLs updated
+- [ ] SSL certificates in place
+- [ ] Database backups configured
+- [ ] Monitoring and alerting set up
+- [ ] Load testing completed
+- [ ] Security audit performed
+- [ ] Documentation updated
 
 ## File Structure
 
 ```
 tanstack-learn/
-├── docker-compose.server.yml    # Docker Compose configuration
-├── apps/server/                 # Server application
-│   ├── src/                     # Source code
-│   ├── package.json            # Dependencies
-│   ├── .env                    # Environment variables (create this)
-│   └── data/                   # Database files (created by Docker)
+├── Dockerfile.server           # Production Docker image
+├── docker-compose.server.yml   # Production deployment config
+├── .env                        # Environment variables (create this)
+├── apps/server/                # Server application
+│   ├── src/                    # Source code
+│   ├── package.json           # Dependencies
+│   └── dist/                  # Built application (created by Docker)
 └── guides/
-    └── docker-server-guide.md  # This guide
+    └── docker-server-guide.md # This guide
 ```
