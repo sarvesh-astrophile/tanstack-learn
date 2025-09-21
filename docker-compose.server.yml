@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  server:
+    image: oven/bun:latest
+    container_name: tanstack-learn-server
+    working_dir: /app/apps/server
+    volumes:
+      - ./apps/server:/app/apps/server
+      - server-db:/app/apps/server/data
+    environment:
+      - DATABASE_URL=file:/app/apps/server/data/local.db
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-your-secret-key-here}
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3000}
+      - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3001}
+    ports:
+      - "3000:3000"
+    command: >
+      bash -c "
+        echo 'Setting up database...' &&
+        bun install &&
+        bun run db:push &&
+        echo 'Starting server...' &&
+        bun run dev
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  server-db:
+    driver: local
