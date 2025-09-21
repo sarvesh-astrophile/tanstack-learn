@@ -19,6 +19,31 @@ The production deployment uses:
 - **Health checks** for monitoring
 - **Automatic restarts** for reliability
 
+## Pre-deployment Preparation
+
+Before deploying, ensure your project is ready:
+
+1. **Update dependencies:**
+   ```bash
+   bun install
+   ```
+
+2. **Test the build locally:**
+   ```bash
+   bun run build
+   ```
+
+3. **Commit any lockfile changes:**
+   ```bash
+   git add bun.lock
+   git commit -m "Update dependencies for deployment"
+   ```
+
+4. **Push to your repository:**
+   ```bash
+   git push
+   ```
+
 ## Quick Start
 
 1. **Navigate to the project root:**
@@ -209,6 +234,13 @@ For high-traffic deployments, consider:
 3. Verify Docker daemon is running
 4. Review build logs for specific errors
 
+### Lockfile issues
+If you encounter "lockfile had changes, but lockfile is frozen" errors:
+1. Update dependencies locally: `bun install`
+2. Commit the updated lockfile to your repository
+3. Rebuild the Docker image
+4. Or use the development setup instead for local testing
+
 ## Production Checklist
 
 - [ ] Environment variables configured
@@ -219,6 +251,8 @@ For high-traffic deployments, consider:
 - [ ] Load testing completed
 - [ ] Security audit performed
 - [ ] Documentation updated
+- [ ] Dependencies updated and lockfile committed
+- [ ] Docker build tested locally before deployment
 
 ## File Structure
 
