@@ -44,13 +44,14 @@ USER appuser
 # Set environment variables
 ENV NODE_ENV=production
 ENV DATABASE_URL=file:/app/data/local.db
+ENV SERVER_PORT=${SERVER_PORT:-3000}
 
 # Expose port
-EXPOSE 3000
+EXPOSE ${SERVER_PORT:-3000}
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:3000/ || exit 1
+  CMD curl -f http://localhost:${SERVER_PORT:-3000}/ || exit 1
 
 # Start the server
-CMD ["bun", "run", "dist/index.js"]
+CMD ["sh", "-c", "bun run dist/index.js --port ${SERVER_PORT:-3000}"]

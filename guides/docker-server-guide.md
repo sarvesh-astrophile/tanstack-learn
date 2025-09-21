@@ -58,6 +58,7 @@ Before deploying, ensure your project is ready:
    BETTER_AUTH_URL=https://yourdomain.com
    GOOGLE_GENERATIVE_AI_API_KEY=your-production-ai-api-key
    CORS_ORIGIN=https://yourfrontenddomain.com
+   SERVER_PORT=3000  # Optional: defaults to 3000
    ```
 
 3. **Build and start the server:**
@@ -66,10 +67,31 @@ Before deploying, ensure your project is ready:
    ```
 
 4. **Access the server:**
-   - API endpoints: http://localhost:3000
-   - Health check: http://localhost:3000/
-   - tRPC endpoints: http://localhost:3000/trpc/*
-   - Authentication: http://localhost:3000/api/auth/*
+   - API endpoints: http://localhost:${SERVER_PORT:-3000}
+   - Health check: http://localhost:${SERVER_PORT:-3000}/
+   - tRPC endpoints: http://localhost:${SERVER_PORT:-3000}/trpc/*
+   - Authentication: http://localhost:${SERVER_PORT:-3000}/api/auth/*
+
+## Port Configuration Examples
+
+### Using Default Port (3000)
+```env
+SERVER_PORT=3000
+```
+Server accessible at: http://localhost:3000
+
+### Using Custom Port (3001)
+```env
+SERVER_PORT=3001
+```
+Server accessible at: http://localhost:3001
+
+### Using Environment Variable
+```bash
+export SERVER_PORT=3002
+docker-compose -f docker-compose.server.yml up --build -d
+```
+Server accessible at: http://localhost:3002
 
 ## Docker Configuration
 
@@ -104,16 +126,23 @@ The `docker-compose.server.yml` includes:
 - Database file stored at `/app/data/local.db` inside the container
 - Data persists between container restarts and deployments
 
+#### Port Configuration
+- **Configurable Port**: Server port can be set via `SERVER_PORT` environment variable
+- **Default Port**: Uses port 3000 if `SERVER_PORT` is not specified
+- **External Mapping**: Maps to the same port externally by default
+- **Health Checks**: Automatically adapts to the configured port
+
 ## Environment Variables
 
-| Variable                       | Description                       | Required | Example |
-| ------------------------------ | --------------------------------- | -------- | ------- |
-| `DATABASE_URL`                 | Database connection string        | Yes      | `file:/app/data/local.db` |
-| `BETTER_AUTH_SECRET`           | Secret key for authentication     | Yes      | `prod-secret-key-123` |
-| `BETTER_AUTH_URL`              | Base URL for auth callbacks       | Yes      | `https://api.yourdomain.com` |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Google AI API key for AI features | Yes      | `AIzaSyC...` |
-| `CORS_ORIGIN`                  | Allowed CORS origins              | Yes      | `https://yourfrontend.com` |
-| `NODE_ENV`                     | Node environment                  | No       | `production` |
+| Variable                       | Description                       | Required | Default | Example |
+| ------------------------------ | --------------------------------- | -------- | ------- | ------- |
+| `DATABASE_URL`                 | Database connection string        | Yes      | -       | `file:/app/data/local.db` |
+| `BETTER_AUTH_SECRET`           | Secret key for authentication     | Yes      | -       | `prod-secret-key-123` |
+| `BETTER_AUTH_URL`              | Base URL for auth callbacks       | Yes      | -       | `https://api.yourdomain.com` |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Google AI API key for AI features | Yes      | -       | `AIzaSyC...` |
+| `CORS_ORIGIN`                  | Allowed CORS origins              | Yes      | -       | `https://yourfrontend.com` |
+| `NODE_ENV`                     | Node environment                  | No       | `production` | `production` |
+| `SERVER_PORT`                  | Server port number                | No       | `3000`  | `3001` |
 
 ## Deployment Commands
 
@@ -215,6 +244,13 @@ For high-traffic deployments, consider:
 2. Verify all required variables are present
 3. Check logs: `docker-compose logs server`
 4. Ensure ports are not already in use
+
+### Port conflicts
+If port 3000 is already in use:
+1. **Set a different port**: Add `SERVER_PORT=3001` to your `.env` file
+2. **Check port usage**: `sudo netstat -tulpn | grep :3000`
+3. **Stop conflicting service**: `sudo systemctl stop <service-name>`
+4. **Use available port**: Choose a port not in use (3001, 3002, etc.)
 
 ### Database connection issues
 1. Check database volume permissions
