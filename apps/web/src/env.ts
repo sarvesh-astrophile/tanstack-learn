@@ -20,7 +20,7 @@ export const env = createEnv({
    * `process.env` or `import.meta.env`.
    */
   runtimeEnvStrict: {
-    PUBLIC_VITE_SERVER_URL: process.env.VITE_SERVER_URL,
+    PUBLIC_VITE_SERVER_URL: import.meta.env.VITE_SERVER_URL,
   },
  
   /**
