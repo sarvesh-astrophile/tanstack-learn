@@ -24,6 +24,7 @@ services:
 
       # CORS Configuration
       CORS_ORIGIN: ${CORS_ORIGIN}
+      SERVER_PORT: ${PORT:-3005}
 
       # Node Environment
       NODE_ENV: ${NODE_ENV:-production}
