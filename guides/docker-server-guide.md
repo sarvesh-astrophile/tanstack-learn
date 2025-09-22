@@ -143,6 +143,7 @@ The `docker-compose.server.yml` includes:
 | `CORS_ORIGIN`                  | Allowed CORS origins              | Yes      | -       | `https://yourfrontend.com` |
 | `NODE_ENV`                     | Node environment                  | No       | `production` | `production` |
 | `SERVER_PORT`                  | Server port number                | No       | `3000`  | `3001` |
+| `DEV_DEPS`                      | Include dev dependencies          | No       | `false` | `true` |
 
 ## Deployment Commands
 
@@ -218,9 +219,43 @@ docker-compose -f docker-compose.server.yml logs -f server
 ```
 
 ### Database Management
-For database operations, you can run commands inside the container:
+
+The server uses SQLite with persistent volume storage (`server-db`). The database file is stored at `/app/data/local.db` inside the container.
+
+#### Running DB Tasks (db:push, db:generate, db:migrate)
+
+To enable Drizzle Kit commands like `bun db:push`, `bun db:generate`, and `bun db:migrate` inside the container, use the `DEV_DEPS` build argument:
+
+- Set `DEV_DEPS=true` in your `.env` file or via command line to include development dependencies (e.g., `drizzle-kit`).
+
+**For Migrations**:
+- Use the dedicated `db-migrate` service:
+  ```bash
+  docker compose --profile db up db-migrate
+  ```
+  This builds a container with dev tools and runs `bun db:migrate` automatically. It depends on the main server service.
+
+**For Other DB Tasks** (e.g., push, generate):
+- Build with dev deps:
+  ```bash
+  docker compose build --build-arg DEV_DEPS=true server
+  ```
+- Run the command interactively:
+  ```bash
+  docker compose run --rm server bun db:push
+  ```
+  Replace `db:push` with your desired command (e.g., `db:generate`, `db:studio`). The shared volume ensures database persistence.
+
+**Important Notes**:
+- Use `DEV_DEPS=true` only for development or one-off DB tasks; the production server uses `DEV_DEPS=false` to maintain a lean image.
+- For production deployments, run migrations during initial setup or via CI/CD pipelines.
+- Verify scripts exist in `apps/server/package.json` (e.g., `"db:push": "drizzle-kit push:sqlite"`).
+
+#### Inspecting the Database
+For database inspection:
 ```bash
-docker-compose -f docker-compose.server.yml exec server bun run db:studio
+docker compose build --build-arg DEV_DEPS=true server
+docker compose run --rm server bun db:studio
 ```
 
 ## Scaling Considerations

@@ -6,12 +6,12 @@
 
 ### Key Technologies & Architecture
 
-- **Frontend**: React 19.1.0 with TanStack Router, TanStack Query, TanStack Form
+- **Frontend**: React 19.1.0 with TanStack Start, Router, Query, and Form
 - **Backend**: Hono.js server with tRPC for type-safe API communication
 - **Database**: SQLite with Drizzle ORM (Turso dialect)
 - **Authentication**: Better Auth with email/password authentication
 - **AI Integration**: Google Gemini 1.5 Flash for AI features
-- **Styling**: Tailwind CSS 3.x with Radix UI components
+- **Styling**: Tailwind CSS 3.4.17 with Radix UI components
 - **Build Tools**: Vite, Turbo (monorepo), Bun package manager
 - **Deployment**: Cloudflare Workers (web app), Bun runtime (server), Docker (production)
 
@@ -86,11 +86,11 @@ tanstack-learn/
 
 ### Core Architecture
 
-- **Framework**: React 19.1.0 with TanStack Start
+- **Framework**: React 19.1.0 with TanStack Start (full-stack React framework)
 - **Routing**: TanStack Router with file-based routing
 - **State Management**: TanStack Query for server state
 - **Forms**: TanStack Form with Zod validation
-- **Styling**: Tailwind CSS 4.x with Radix UI components
+- **Styling**: Tailwind CSS 3.4.17 with Radix UI components
 - **Build**: Vite with Cloudflare Workers target
 
 ### Key Features & Components
@@ -291,7 +291,7 @@ VITE_SERVER_URL=           # Backend server URL
 
 ### Docker Files
 
-- **`Dockerfile.server`**: Multi-stage production build with security best practices
+- **`Dockerfile.server`**: Multi-stage production build with security best practices and flexible dependency management
 - **`docker-compose.server.yml`**: Production deployment configuration
 - **`guides/docker-server-guide.md`**: Comprehensive Docker deployment documentation
 
@@ -310,7 +310,7 @@ VITE_SERVER_URL=           # Backend server URL
 tanstack-learn/
 ├── Dockerfile.server           # Production Docker image
 ├── docker-compose.server.yml   # Production deployment config
-├── .env                        # Environment variables (create this)
+├── .env.production.example     # Environment variables template
 ├── apps/server/                # Server application
 │   ├── src/                    # Source code
 │   ├── package.json           # Dependencies
