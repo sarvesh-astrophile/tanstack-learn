@@ -24,8 +24,8 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN}
 
       # Node Environment
-      NODE_ENV: production
-      PORT: 3000
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
     volumes:
       # Persistent database storage
       - server_data:/app/data
