@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.server
+      target: production # Use production stage by default
     container_name: tanstack-learn-server
     volumes:
       - server-db:/app/data
@@ -26,6 +27,30 @@ services:
       start_period: 40s
     networks:
       - tanstack-network
+
+  # Development service with database tools
+  server-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+      target: development # Use development stage for DB operations
+    container_name: tanstack-learn-server-dev
+    volumes:
+      - server-db:/app/data
+      - .:/app/workspace:ro # Mount workspace for development
+    environment:
+      - DATABASE_URL=file:/app/data/local.db
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL}
+      - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - NODE_ENV=development
+    ports:
+      - "${SERVER_PORT:-3000}:3000"
+    networks:
+      - tanstack-network
+    # Override default CMD to allow custom commands
+    command: ["tail", "-f", "/dev/null"] # Keep container running
 
 volumes:
   server-db:
