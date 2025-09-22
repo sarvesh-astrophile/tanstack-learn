@@ -20,7 +20,7 @@ RUN bun run build
 
 # Prune to production dependencies
 WORKDIR /app
-RUN rm -rf node_modules && bun install --production --frozen-lockfile
+RUN rm -rf node_modules && bun install --production
 
 # Production stage
 FROM oven/bun:1.2-slim
