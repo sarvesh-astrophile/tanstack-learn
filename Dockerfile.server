@@ -60,4 +60,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:${SERVER_PORT:-3000}/ || exit 1
 
 # Start the server using script
-CMD ["sh", "-c", "bun run start --port ${SERVER_PORT:-3000}"]
+CMD ["sh", "-c", "bun run dist/index.js --port ${SERVER_PORT:-3000}"]
