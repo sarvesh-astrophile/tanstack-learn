@@ -8,9 +8,6 @@ services:
     container_name: tanstack-learn-server
     volumes:
       - server-db:/app/data
-      - ./package.json:/app/package.json:ro
-      - ./bun.lock:/app/bun.lock:ro
-      - ./.env:/app/.env:ro
     environment:
       - DATABASE_URL=file:/app/data/local.db
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}

@@ -26,11 +26,11 @@
         "drizzle-orm": "^0.44.5",
         "hono": "^4.9.8",
         "install": "^0.13.0",
-        "zod": "^4.1.11"
+        "zod": "^4.1.11",
+        "drizzle-kit": "^0.31.4"
     },
     "devDependencies": {
         "@types/bun": "^1.2.22",
-        "drizzle-kit": "^0.31.4",
         "tsdown": "^0.15.2",
         "typescript": "^5.9.2"
     }

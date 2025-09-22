@@ -18,17 +18,11 @@ COPY apps/server ./apps/server
 WORKDIR /app/apps/server
 RUN bun run build
 
-# Install dev dependencies for database operations
-RUN bun install --dev
-
 # Production stage
 FROM oven/bun:1.2-slim
 
 # Install curl for health checks
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
-# Install bun
-RUN curl -fsSL https://bun.sh/install | bash && mv /root/.bun/bin/bun /usr/local/bin/bun
 
 # Create app user
 RUN useradd -r -s /bin/false -m -d /app appuser
@@ -38,8 +32,7 @@ WORKDIR /app
 
 # Copy built application from builder stage
 COPY --from=builder /app/apps/server/dist ./dist
-COPY --from=builder /app/apps/server/package.json ./
-COPY --from=builder /app/apps/server/src ./src
+COPY --from=builder /app/apps/server/src/db ./src/db
 COPY --from=builder /app/apps/server/drizzle.config.ts ./
 
 # Create data directory for database
