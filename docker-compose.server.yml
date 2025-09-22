@@ -8,6 +8,9 @@ services:
     container_name: tanstack-learn-server
     volumes:
       - server-db:/app/data
+      - ./package.json:/app/package.json:ro
+      - ./bun.lock:/app/bun.lock:ro
+      - ./.env:/app/.env:ro
     environment:
       - DATABASE_URL=file:/app/data/local.db
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
@@ -18,8 +21,6 @@ services:
     ports:
       - "${SERVER_PORT:-3000}:3000"
     restart: unless-stopped
-    # Allow overriding the command to run drizzle-kit commands
-    command: ${DRIZZLE_COMMAND:-sh -c "bun run dist/index.js --port ${SERVER_PORT:-3000}"}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/"]
       interval: 30s
