@@ -29,27 +29,6 @@ services:
     networks:
       - tanstack-network
 
-  db-migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
-      args:
-        - DEV_DEPS=true
-    command: ["bun", "db:migrate"]
-    volumes:
-      - server-db:/app/data
-    environment:
-      - DATABASE_URL=file:/app/data/local.db
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - BETTER_AUTH_URL=${BETTER_AUTH_URL}
-      - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
-      - CORS_ORIGIN=${CORS_ORIGIN}
-      - NODE_ENV=production
-    profiles:
-      - db
-    networks:
-      - tanstack-network
-
 volumes:
   server-db:
     driver: local
