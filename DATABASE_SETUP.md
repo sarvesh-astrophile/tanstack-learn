@@ -51,7 +51,16 @@ docker-compose -f docker-compose.server.yml stop server-dev
 docker-compose -f docker-compose.server.yml run --rm server-dev sh -c "cd /app && bun db:push"
 ```
 
-### Option 3: Using Docker Compose Service
+### Option 3: For Coolify Deployments
+
+If you're deploying to Coolify and need to run database operations, you can use the development image directly:
+
+```bash
+# Run database operations in Coolify environment
+docker run --rm -v $(pwd):/app -e DATABASE_URL="file:/app/data/local.db" -e BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET} -e BETTER_AUTH_URL=${BETTER_AUTH_URL} -e GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY} -e CORS_ORIGIN=${CORS_ORIGIN} your-image-name bun db:push
+```
+
+### Option 4: Using Docker Compose Service
 
 You can also start the development service and run commands interactively:
 
