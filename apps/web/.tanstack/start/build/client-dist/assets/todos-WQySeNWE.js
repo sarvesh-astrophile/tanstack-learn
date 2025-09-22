@@ -1,9 +1,10 @@
-import{b as A,r as d,j as t,d as U,P as V,e as P,u as X,f as B,h as T,i as Q,c as g,t as y,k as E,B as M,L as S}from"./main-2UVUqwYZ.js";import{I as J}from"./input-Cvl9ctBd.js";/**
+import{I as J}from"./input-Cvl9ctBd.js";/**
  * @license lucide-react v0.525.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */const W=[["path",{d:"M20 6 9 17l-5-5",key:"1gmf2c"}]],Y=A("check",W);/**
+ */
+import{b as A,f as B,r as d,k as E,c as g,B as M,e as P,i as Q,L as S, h as T,j as t,d as U,P as V,u as X,t as y}from"./main-2UVUqwYZ.js";const W=[["path",{d:"M20 6 9 17l-5-5",key:"1gmf2c"}]],Y=A("check",W);/**
  * @license lucide-react v0.525.0 - ISC
  *
  * This source code is licensed under the ISC license.

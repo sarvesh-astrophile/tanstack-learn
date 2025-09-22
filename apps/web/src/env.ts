@@ -1,20 +1,19 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
- 
+
 export const env = createEnv({
-  server: {
-  },
- 
+  server: {},
+
   /**
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
    */
   clientPrefix: "PUBLIC_",
- 
+
   client: {
     PUBLIC_VITE_SERVER_URL: z.string().min(1),
   },
- 
+
   /**
    * What object holds the environment variables at runtime. This is usually
    * `process.env` or `import.meta.env`.
@@ -22,7 +21,7 @@ export const env = createEnv({
   runtimeEnvStrict: {
     PUBLIC_VITE_SERVER_URL: import.meta.env.VITE_SERVER_URL,
   },
- 
+
   /**
    * By default, this library will feed the environment variables directly to
    * the Zod validator.
