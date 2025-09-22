@@ -11,9 +11,9 @@
 - **Database**: SQLite with Drizzle ORM (Turso dialect)
 - **Authentication**: Better Auth with email/password authentication
 - **AI Integration**: Google Gemini 1.5 Flash for AI features
-- **Styling**: Tailwind CSS 4.x with Radix UI components
+- **Styling**: Tailwind CSS 3.x with Radix UI components
 - **Build Tools**: Vite, Turbo (monorepo), Bun package manager
-- **Deployment**: Cloudflare Workers (web app), Bun runtime (server)
+- **Deployment**: Cloudflare Workers (web app), Bun runtime (server), Docker (production)
 
 ## Project Structure
 
@@ -23,7 +23,10 @@ tanstack-learn/
 │   ├── landing/          # Landing page (empty)
 │   ├── server/           # Backend API server
 │   └── web/              # Frontend React application
-├── guides/               # Documentation (empty)
+├── guides/               # Documentation
+│   └── docker-server-guide.md  # Docker deployment guide
+├── Dockerfile.server     # Production Docker image
+├── docker-compose.server.yml  # Production deployment config
 ├── package.json          # Root package configuration
 ├── turbo.json           # Turborepo configuration
 ├── biome.json           # Code formatting/linting
@@ -123,13 +126,13 @@ tanstack-learn/
 
 ### State Management
 
-- **TanStack Query**: Server state management with caching, background updates
+- **TanStack Query**: Server state management with caching, background updates, integrated with tRPC React hooks
 - **TanStack Form**: Form state with validation using Zod schemas
 - **React State**: Local component state for UI interactions
 
 ### API Integration
 
-- **tRPC Client**: Type-safe API calls with automatic TypeScript inference
+- **tRPC Client**: Type-safe API calls with automatic TypeScript inference using `@trpc/react-query`
 - **HTTP Batch Link**: Efficient request batching
 - **Credentials**: Include cookies for authentication
 - **Error Handling**: Global error handling with toast notifications
@@ -150,9 +153,10 @@ tanstack-learn/
 
 ### Build & Deployment
 
-- **Server**: Bun runtime with tsdown compilation
+- **Server**: Bun runtime with tsdown compilation, Docker multi-stage builds for production
 - **Web**: Vite build targeting Cloudflare Workers
 - **Database**: Drizzle Kit for migrations and schema management
+- **Containerization**: Docker Compose for production deployments with health checks and persistent volumes
 
 ## Environment Variables
 
@@ -223,6 +227,12 @@ VITE_SERVER_URL=           # Backend server URL
 - `bun dev:server`: Start server only
 - `bun dev:marketing`: Start marketing/landing page
 
+### Docker Commands
+
+- `docker-compose -f docker-compose.server.yml up --build -d`: Build and start production server
+- `docker-compose -f docker-compose.server.yml down`: Stop production server
+- `docker-compose -f docker-compose.server.yml logs -f`: View production server logs
+
 ## Architecture Patterns
 
 ### Type Safety
@@ -262,12 +272,51 @@ VITE_SERVER_URL=           # Backend server URL
 5. **Testing**: Access web app at http://localhost:3001
 6. **Database Management**: Use `bun db:studio` for database inspection
 
+## Production Deployment with Docker
+
+### Docker Architecture
+
+- **Multi-stage builds** for optimized image size and security
+- **Production-optimized** server with compiled binaries
+- **Persistent volumes** for database storage
+- **Health checks** for monitoring and auto-restart
+- **Environment-based configuration** for different deployment environments
+
+### Docker Deployment Workflow
+
+1. **Configure environment variables** in `.env` file
+2. **Build and deploy**: `docker-compose -f docker-compose.server.yml up --build -d`
+3. **Monitor logs**: `docker-compose -f docker-compose.server.yml logs -f`
+4. **Scale and manage**: Use Docker Compose commands for production management
+
+### Docker Files
+
+- **`Dockerfile.server`**: Multi-stage production build with security best practices
+- **`docker-compose.server.yml`**: Production deployment configuration
+- **`guides/docker-server-guide.md`**: Comprehensive Docker deployment documentation
+
 ## Future Considerations
 
-- The `guides/` directory is empty and could be used for documentation
 - The `apps/landing/` directory is empty and could house a marketing site
 - AI features are implemented but could be expanded
 - Additional authentication providers could be added
 - Real-time features could be enhanced with WebSockets
+- Docker deployment could be extended to support multiple environments (staging, production)
+- Database could be migrated from SQLite to PostgreSQL for horizontal scaling
+
+## File Structure
+
+```
+tanstack-learn/
+├── Dockerfile.server           # Production Docker image
+├── docker-compose.server.yml   # Production deployment config
+├── .env                        # Environment variables (create this)
+├── apps/server/                # Server application
+│   ├── src/                    # Source code
+│   ├── package.json           # Dependencies
+│   └── dist/                  # Built application (created by Docker)
+└── guides/
+    └── docker-server-guide.md # Docker deployment guide
+```
 
 This project serves as an excellent example of modern React development with the TanStack ecosystem, demonstrating best practices for full-stack TypeScript applications.
