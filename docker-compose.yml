@@ -32,8 +32,6 @@ services:
       # - /path/to/ssl:/app/ssl:ro
     ports:
       - "${SERVER_PORT:-3005}:3000"
-    expose:
-      - ${SERVER_PORT:-3005}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/"]
       interval: 30s
