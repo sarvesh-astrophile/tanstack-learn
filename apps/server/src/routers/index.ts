@@ -8,7 +8,7 @@ export const appRouter = router({
         };
     }),
 
-    pirvateData: protectedProcedure.query(async ({ ctx }) => {
+    privateData: protectedProcedure.query(async ({ ctx }) => {
         return {
             message: "This is private",
             user: ctx.session.user,

@@ -13,6 +13,12 @@
         "verbatimModuleSyntax": true,
         "noEmit": true,
 
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "resolveJsonModule": true,
+        "allowJs": true,
+        "forceConsistentCasingInFileNames": true,
+
         // Linting
         "skipLibCheck": true,
         "strict": true,

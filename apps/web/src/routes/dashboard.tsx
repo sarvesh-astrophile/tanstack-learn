@@ -1,7 +1,6 @@
 import { authClient } from '@/lib/auth-client';
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { useTRPC } from '@/utils/trpc'
-import { useQuery } from '@tanstack/react-query';
+import { trpc } from '@/utils/trpc'
 
 export const Route = createFileRoute('/dashboard')({
   component: RouteComponent,
@@ -16,8 +15,7 @@ export const Route = createFileRoute('/dashboard')({
 
 function RouteComponent() {
     const { session } = Route.useRouteContext();
-    const trpc = useTRPC();
-    const privateData = useQuery(trpc.pirvateData.queryOptions())
+    const privateData = trpc.privateData.useQuery()
   return <div>
     <h1>Dashboard</h1>
     <p>{privateData.data?.message}</p>

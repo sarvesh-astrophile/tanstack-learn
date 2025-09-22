@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import React, { useState } from "react"
-import { useTRPC } from "@/utils/trpc"
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { trpc } from "@/utils/trpc"
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,44 +12,43 @@ export const Route = createFileRoute("/todos")({
   component: TodosRoute,
 })
 
+type Todo = {
+  id: number;
+  text: string;
+  completed: boolean;
+};
+
 function TodosRoute() {
   const [newTodoText, setNewTodoText] = useState("");
-  const trpc = useTRPC();
-  const todos = useQuery(trpc.todo.getAll.queryOptions());
+  const todos = trpc.todo.getAll.useQuery();
 
-  const createMutation = useMutation(
-    trpc.todo.create.mutationOptions({
-      onSuccess: () => {
-        todos.refetch();
-        setNewTodoText("");
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      }
-    })
-  )
+  const createMutation = trpc.todo.create.useMutation({
+    onSuccess: () => {
+      todos.refetch();
+      setNewTodoText("");
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    }
+  })
 
-  const toggleMutation = useMutation(
-    trpc.todo.toggle.mutationOptions({
-      onSuccess: () => {
-        todos.refetch();
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      }
-    })
-  )
+  const toggleMutation = trpc.todo.toggle.useMutation({
+    onSuccess: () => {
+      todos.refetch();
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    }
+  })
 
-  const deleteMutation = useMutation(
-    trpc.todo.delete.mutationOptions({
-      onSuccess: () => {
-        todos.refetch();
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      }
-    })
-  )
+  const deleteMutation = trpc.todo.delete.useMutation({
+    onSuccess: () => {
+      todos.refetch();
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    }
+  })
 
   const handleAddTodo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,13 +95,13 @@ function TodosRoute() {
               <div className="flex justify-center py-4">
                 <Loader2 className="h-6 w-6 animate-spin" />
               </div>
-            ) : todos.data?.length === 0 ? (
+            ) : (todos.data as Todo[])?.length === 0 ? (
               <div className="text-center text-sm text-muted-foreground">
                 No tasks yet. Add one above!
               </div>
             ) : (
               <ul className="space-y-3">
-                {todos.data?.map((todo) => (
+                {(todos.data as Todo[])?.map((todo: Todo) => (
                   <li 
                   key={todo.id}
                   className="flex items-center justify-between rounded-md border p-2"

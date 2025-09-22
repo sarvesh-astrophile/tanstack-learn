@@ -1,14 +1,18 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "tanstack-learn",
-	"main": ".output/server/index.mjs",
-	"compatibility_date": "2025-07-05",
+	"main": "./.output/server/index.mjs",
+	"compatibility_date": "2025-04-01",
 	"compatibility_flags": ["nodejs_compat"],
 	"assets": {
-		"directory": ".output/public"
+		"directory": "./.output/public"
 	},
 	"observability": {
 		"enabled": true
+	},
+	"vars": {
+		"VITE_SERVER_URL": "https://server-tanstack.sarvsh.in"
+		// "VITE_SERVER_URL": "http://localhost:3000"
 	}
 	// "kv_namespaces": [
 	//   {
