@@ -7,10 +7,6 @@ services:
       dockerfile: Dockerfile.server
     container_name: tanstack-learn-server
     restart: unless-stopped
-    ports:
-      - "${SERVER_PORT:-3005}:3000"
-    expose:
-      - ${SERVER_PORT:-3005}
     environment:
       # Database Configuration
       DATABASE_URL: ${DATABASE_URL:-file:/app/data/production.db}
@@ -34,6 +30,10 @@ services:
 
       # Optional: Mount SSL certificates if needed
       # - /path/to/ssl:/app/ssl:ro
+    ports:
+      - "${SERVER_PORT:-3005}:3000"
+    expose:
+      - ${SERVER_PORT:-3005}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/"]
       interval: 30s
