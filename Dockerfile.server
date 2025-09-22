@@ -9,7 +9,8 @@ COPY package.json bun.lock ./
 COPY apps/server/package.json ./apps/server/
 
 # Install dependencies (allow lockfile updates for production builds)
-RUN bun install
+RUN bun install 
+CMD [ "bun run db:push" ]
 
 # Copy source code
 COPY apps/server ./apps/server
