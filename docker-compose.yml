@@ -8,7 +8,9 @@ services:
     container_name: tanstack-learn-server
     restart: unless-stopped
     ports:
-      - "${SERVER_PORT:-3000}:3000"
+      - "${SERVER_PORT:-3005}:3000"
+    expose:
+      - ${SERVER_PORT:-3005}
     environment:
       # Database Configuration
       DATABASE_URL: ${DATABASE_URL:-file:/app/data/production.db}
