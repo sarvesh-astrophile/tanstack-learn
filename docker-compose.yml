@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: tanstack-learn-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Database Configuration
+      DATABASE_URL: ${DATABASE_URL:-file:/app/data/production.db}
+
+      # Authentication Configuration
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+
+      # AI Configuration
+      GOOGLE_GENERATIVE_AI_API_KEY: ${GOOGLE_GENERATIVE_AI_API_KEY}
+
+      # CORS Configuration
+      CORS_ORIGIN: ${CORS_ORIGIN}
+
+      # Node Environment
+      NODE_ENV: production
+      PORT: 3000
+    volumes:
+      # Persistent database storage
+      - server_data:/app/data
+
+      # Optional: Mount SSL certificates if needed
+      # - /path/to/ssl:/app/ssl:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - tanstack-learn-network
+
+volumes:
+  server_data:
+    driver: local
+
+networks:
+  tanstack-learn-network:
+    driver: bridge

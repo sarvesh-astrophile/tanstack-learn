@@ -1,76 +1,65 @@
 # Multi-stage build for TanStack Learn Server
-ARG DEV_DEPS=false
+FROM oven/bun:1 AS base
 
-FROM oven/bun:1.2 AS builder
-
-# Set working directory
+# Install dependencies only when needed
+FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lock ./
-COPY apps/server/package.json ./apps/server/
+COPY apps/server/package.json ./
+COPY apps/server/bun.lock ./
 
-# Install all dependencies
-RUN bun install
-
-# Copy source code
-COPY apps/server ./apps/server
+# Install dependencies
+RUN bun install --frozen-lockfile
 
 # Build the application
-WORKDIR /app/apps/server
+FROM base AS builder
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code
+COPY apps/server/src ./src
+COPY apps/server/tsconfig.json ./
+COPY apps/server/drizzle.config.ts ./
+
+# Copy package.json for scripts
+COPY apps/server/package.json ./
+
+# Build the application
 RUN bun run build
 
-# Prune to production dependencies
-WORKDIR /app
-RUN rm -rf node_modules && bun install --production
-
-# Production stage
-FROM oven/bun:1.2-slim
-
-ARG DEV_DEPS
-
-# Install curl for health checks
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
-# Create app user
-RUN useradd -r -s /bin/false -m -d /app appuser
-
-# Set working directory
+# Production image
+FROM oven/bun:1-slim AS runner
 WORKDIR /app
 
-# Copy built application and pruned deps from builder
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/server/dist ./dist
-COPY --from=builder /app/apps/server/src/db ./src/db
-COPY --from=builder /app/apps/server/drizzle.config.ts ./
-COPY --from=builder /app/apps/server/package.json ./package.json
-COPY --from=builder /app/bun.lock ./bun.lock
+# Create non-root user
+RUN groupadd --gid 1001 nodejs && \
+    useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nodejs
 
-# If DEV_DEPS=true, install dev dependencies and copy full source
-RUN if [ "$DEV_DEPS" = "true" ]; then \
-      bun install && \
-      mkdir -p ./src && \
-      cp -r /app/apps/server/src/* ./src/ || true; \
-    fi
+# Copy built application
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/src ./src
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 
-# Create data directory for database
-RUN mkdir -p /app/data && chown -R appuser:appuser /app
+# Create database directory
+RUN mkdir -p /app/data && chown -R nodejs:nodejs /app/data
 
 # Switch to non-root user
-USER appuser
+USER nodejs
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV DATABASE_URL=file:/app/data/local.db
-ENV SERVER_PORT=${SERVER_PORT:-3000}
+ENV PORT=3000
 
 # Expose port
-EXPOSE ${SERVER_PORT:-3000}
+EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:${SERVER_PORT:-3000}/ || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/ || exit 1
 
-
-# Flexible CMD to support arbitrary bun commands or default start
-CMD ["sh", "-c", "if [ $# -gt 0 ] && [ \"$1\" = \"bun\" ]; then exec \"$@\"; else bun run start --port ${SERVER_PORT:-3000}; fi"]
+# Start the application
+CMD ["bun", "run", "start"]
