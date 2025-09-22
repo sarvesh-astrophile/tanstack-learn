@@ -1,4 +1,6 @@
 # Multi-stage build for TanStack Learn Server
+ARG DEV_DEPS=false
+
 FROM oven/bun:1.2 AS builder
 
 # Set working directory
@@ -9,7 +11,7 @@ COPY package.json bun.lock ./
 COPY apps/server/package.json ./apps/server/
 
 # Install all dependencies
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Copy source code
 COPY apps/server ./apps/server
@@ -20,10 +22,12 @@ RUN bun run build
 
 # Prune to production dependencies
 WORKDIR /app
-RUN rm -rf node_modules && bun install --production --frozen-lockfile
+RUN rm -rf node_modules && bun install --production
 
 # Production stage
 FROM oven/bun:1.2-slim
+
+ARG DEV_DEPS
 
 # Install curl for health checks
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
@@ -40,6 +44,14 @@ COPY --from=builder /app/apps/server/dist ./dist
 COPY --from=builder /app/apps/server/src/db ./src/db
 COPY --from=builder /app/apps/server/drizzle.config.ts ./
 COPY --from=builder /app/apps/server/package.json ./package.json
+COPY --from=builder /app/bun.lock ./bun.lock
+
+# If DEV_DEPS=true, install dev dependencies and copy full source
+RUN if [ "$DEV_DEPS" = "true" ]; then \
+      bun install && \
+      mkdir -p ./src && \
+      cp -r /app/apps/server/src/* ./src/ || true; \
+    fi
 
 # Create data directory for database
 RUN mkdir -p /app/data && chown -R appuser:appuser /app
@@ -59,5 +71,5 @@ EXPOSE ${SERVER_PORT:-3000}
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:${SERVER_PORT:-3000}/ || exit 1
 
-# Start the server using script
-CMD ["sh", "-c", "bun run start --port ${SERVER_PORT:-3000}"]
+# Flexible CMD to support arbitrary bun commands or default start
+CMD ["sh", "-c", "if [ $# -gt 0 ] && [ \"$1\" = \"bun\" ]; then exec \"$@\"; else bun run start --port ${SERVER_PORT:-3000}; fi"]
