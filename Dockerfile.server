@@ -71,5 +71,6 @@ EXPOSE ${SERVER_PORT:-3000}
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:${SERVER_PORT:-3000}/ || exit 1
 
+
 # Flexible CMD to support arbitrary bun commands or default start
 CMD ["sh", "-c", "if [ $# -gt 0 ] && [ \"$1\" = \"bun\" ]; then exec \"$@\"; else bun run start --port ${SERVER_PORT:-3000}; fi"]
