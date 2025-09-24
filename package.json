@@ -11,6 +11,7 @@
     "check": "biome check --write .",
     "dev": "turbo dev",
     "build": "turbo build",
+    "deploy": "turbo deploy --filter=web",
     "check-types": "turbo check-types",
     "dev:marketing": "turbo dev --filter=marketing",
     "dev:web": "turbo dev --filter=web",
