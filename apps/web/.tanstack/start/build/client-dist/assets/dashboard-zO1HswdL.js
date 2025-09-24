@@ -1,1 +1,0 @@
-import{R as a,j as e, t as o}from"./main-2UVUqwYZ.js";function r(){const{session:t}=a.useRouteContext(),s=o.privateData.useQuery();return e.jsxs("div",{children:[e.jsx("h1",{children:"Dashboard"}),e.jsx("p",{children:s.data?.message}),e.jsx("p",{children:t.data?.user.email})]})}export{r as component};

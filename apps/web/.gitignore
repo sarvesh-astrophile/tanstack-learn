@@ -139,3 +139,22 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Turborepo cache
+.turbo/
+
+# Cloudflare Wrangler cache
+.wrangler/
+
+# TanStack build output
+.tanstack/
+
+# Nitro build output (though TanStack uses .output)
+.nitro/
+
+# TanStack Start build output (already covered by .output but being explicit)
+.output/
+
+# Server build output
+dist/
+
