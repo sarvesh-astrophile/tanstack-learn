@@ -11,8 +11,7 @@
 		"enabled": true
 	},
 	"vars": {
-		"VITE_SERVER_URL": "https://server-tanstack.sarvsh.in"
-		// "VITE_SERVER_URL": "http://localhost:3000"
+		"VITE_SERVER_URL": "https://tanstack-learn.sarvsh.in"
 	}
 	// "kv_namespaces": [
 	//   {
