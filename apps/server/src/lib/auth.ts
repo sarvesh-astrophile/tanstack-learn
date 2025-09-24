@@ -9,7 +9,7 @@ export const auth = betterAuth<BetterAuthOptions>({
     provider: "sqlite",
     schema,
   }),
-  trustedOrigins: [env.CORS_ORIGIN, "https://tanstack-learn.reetlab.workers.dev"],
+  trustedOrigins: [env.CORS_ORIGIN, env.BETTER_AUTH_URL],
   emailAndPassword: {
     enabled: true,
   },

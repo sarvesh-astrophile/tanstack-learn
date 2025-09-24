@@ -8,6 +8,7 @@ import { logger } from "hono/logger";
 import { auth } from "./lib/auth";
 import { createContext } from "./lib/context";
 import { appRouter } from "./routers/index";
+import { env } from "./env";
 
 const app = new Hono();
 
@@ -16,8 +17,8 @@ app.use(
   "/*",
   cors({
     origin: [
-      process.env.CORS_ORIGIN || "",
-      "https://tanstack-learn.reetlab.workers.dev",
+      env.CORS_ORIGIN,
+      env.BETTER_AUTH_URL,
     ],
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],

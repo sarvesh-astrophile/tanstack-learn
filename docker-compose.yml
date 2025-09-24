@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   server:
     build:
@@ -8,43 +6,18 @@ services:
     container_name: tanstack-learn-server
     restart: unless-stopped
     environment:
-      # Database Configuration
       DATABASE_URL: ${DATABASE_URL:-file:/app/data/production.db}
-
-      # Authentication Configuration
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL}
-
-      # AI Configuration
       GOOGLE_GENERATIVE_AI_API_KEY: ${GOOGLE_GENERATIVE_AI_API_KEY}
-
-      # CORS Configuration
       CORS_ORIGIN: ${CORS_ORIGIN}
-      SERVER_PORT: ${PORT:-3005}
-
-      # Node Environment
-      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      HOST_PORT: ${HOST_PORT:-3005}
+      NODE_ENV: production
     volumes:
-      # Persistent database storage
       - server_data:/app/data
-
-      # Optional: Mount SSL certificates if needed
-      # - /path/to/ssl:/app/ssl:ro
     ports:
-      - "${SERVER_PORT:-3005}:3000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - tanstack-learn-network
+      - "${HOST_PORT:-3005}:3000"
 
 volumes:
   server_data:
-    driver: local
-
-networks:
-  tanstack-learn-network:
-    driver: bridge
